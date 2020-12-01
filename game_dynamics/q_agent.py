@@ -1,10 +1,9 @@
-
 import numpy as np
 from game_dynamics.epsilon_greedy import EpsilonGreedy
 
 class QAgent():
 
-    def __init__(self, starting_state, action_space, alpha=0.5, gamma=0.95, exploration_strategy=EpsilonGreedy()):
+    def __init__(self, starting_state, action_space, alpha=0.1, gamma=0.95, exploration_strategy=EpsilonGreedy()):
         self.state = starting_state
         self.action_space = action_space
         self.action = None
