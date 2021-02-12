@@ -1,24 +1,21 @@
 import numpy as np 
 import random
-import dqn_agent
-from game_dynamics.dqn_agent import DQNAgent
-from game_dynamics.dqn_agent import Model 
+import game_dynamics.dqn_agent as dqn_agent
+from game_dynamics.dqn_agent import DQNAgent, Model
 from game_dynamics.epsilon_greedy import EpsilonGreedy
 from game_dynamics.ind_dqn_env import Environment
 import matplotlib.pyplot as plt 
-from game_dynamicss.game_setup import GameVariables
+from game_dynamics.game_setup import GameVariables
 from timeit import default_timer as timer
-import random, os.path, math, glob, csv, base64
+import os.path, math, glob, csv, base64
 
-from pyvirtualdisplay import Display
-from IPython import display as ipythondisplay
-from IPython.display import clear_output
 
-num_p = 10
-
+num_p = 3 ## size of action space
 p = np.linspace(0.15,0.85,num_p)
 q = np.linspace(0.15,0.85,num_p)
 
+
+## SETUP ENVIRONMENT
 env = Environment(p=p, q=q, num_players_1=100, num_players_2=100, sim_time=150000)
 
 start=timer()
@@ -33,6 +30,7 @@ except OSError:
     for f in files:
         os.remove(f)
 
+## SETUP DQN AGENTS 
 config = dqn_agent.Config(sim_time=env.game.sim_time)
 
 model1  = Model(env=env, config=config, log_dir=log_dir)
@@ -40,6 +38,8 @@ model2  = Model(env=env, config=config, log_dir=log_dir)
 
 observations = env.reset()
 
+
+## TRAIN AGENTS
 for sample_idx in range(1, config.MAX_SAMPLES + 1):
     
     epsilon = config.epsilon_by_sample(sample_idx)
@@ -54,10 +54,10 @@ for sample_idx in range(1, config.MAX_SAMPLES + 1):
     observations, rewards, done, _ = env.step(action_1, action_2)
     observations = None if done else observations
 
-
     model1.update(prev_observation[0], action_1, rewards[0], observations[0], sample_idx)
     model2.update(prev_observation[1], action_2, rewards[1], observations[1], sample_idx)
 
+## SAVE MODELS
 model1.save_w()
 model2.save_w()
 env.close()
